@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8" />
+  <title>حصالة طلال</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      direction: rtl;
+      background: linear-gradient(to left, #dfe9f3, #ffffff);
+      margin: 0;
+      padding: 40px 10px;
+      text-align: center;
+    }
+
+    h1 {
+      color: #4a148c;
+      margin-bottom: 30px;
+    }
+
+    .container {
+      background: #fff;
+      border-radius: 15px;
+      padding: 30px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      max-width: 500px;
+      margin: auto;
+    }
+
+    input, select, button {
+      padding: 10px;
+      margin: 10px 5px;
+      font-size: 16px;
+      border-radius: 6px;
+      border: 1px solid #aaa;
+      width: 80%;
+      box-sizing: border-box;
+    }
+
+    button {
+      background-color: #4a148c;
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background-color: #6a1b9a;
+    }
+
+    .result {
+      margin-top: 20px;
+      font-size: 18px;
+      color: #333;
+      background-color: #f3f3f3;
+      border-radius: 10px;
+      padding: 15px;
+    }
+
+    .reset-btn {
+      margin-top: 20px;
+      background-color: #c62828;
+    }
+
+    .reset-btn:hover {
+      background-color: #b71c1c;
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>💰 حصالة طلال</h1>
+
+    <label>المبلغ:</label><br>
+    <input type="number" id="amount" placeholder="مثال: 100"><br>
+
+    <label>العملة:</label><br>
+    <select id="currency">
+      <option value="LBP">ليرة لبنانية (ل.ل)</option>
+      <option value="USD">دولار (USD)</option>
+    </select><br>
+
+    <label>النوع:</label><br>
+    <select id="type">
+      <option value="income">إضافة مال</option>
+      <option value="expense">مصاريف</option>
+    </select><br>
+
+    <button onclick="addTransaction()">تأكيد</button>
+
+    <div class="result" id="result"></div>
+
+    <button class="reset-btn" onclick="resetAll()">🔄 إعادة تعيين البيانات</button>
+  </div>
+
+  <script>
+    let data = {
+      LBP: { income: 0, expense: 0 },
+      USD: { income: 0, expense: 0 }
+    };
+
+    // تحميل البيانات من التخزين المحلي
+    if (localStorage.getItem('walletData')) {
+      data = JSON.parse(localStorage.getItem('walletData'));
+    }
+
+    function updateDisplay() {
+      const result = document.getElementById('result');
+
+      const lbpBalance = data.LBP.income - data.LBP.expense;
+      const usdBalance = data.USD.income - data.USD.expense;
+
+      result.innerHTML = `
+        <h3>📊 إجمالي الحصالة:</h3>
+        <p>💵 دولار أمريكي: ${data.USD.income} دخل - ${data.USD.expense} مصروف = <strong>${usdBalance} USD</strong></p>
+        <p>💸 ليرة لبنانية: ${data.LBP.income} دخل - ${data.LBP.expense} مصروف = <strong>${lbpBalance} ل.ل</strong></p>
+      `;
+    }
+
+    function addTransaction() {
+      const amount = parseFloat(document.getElementById('amount').value);
+      const currency = document.getElementById('currency').value;
+      const type = document.getElementById('type').value;
+
+      if (!isNaN(amount) && amount > 0) {
+        data[currency][type] += amount;
+
+        // حفظ في التخزين المحلي
+        localStorage.setItem('walletData', JSON.stringify(data));
+
+        updateDisplay();
+      }
+
+      document.getElementById('amount').value = '';
+    }
+
+    function resetAll() {
+      if (confirm("هل أنت متأكد من حذف جميع البيانات؟")) {
+        data = {
+          LBP: { income: 0, expense: 0 },
+          USD: { income: 0, expense: 0 }
+        };
+        localStorage.removeItem('walletData');
+        updateDisplay();
+      }
+    }
+
+    updateDisplay();
+  </script>
+
+</body>
+</html>
